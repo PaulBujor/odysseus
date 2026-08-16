@@ -1,0 +1,18 @@
+# Cloudflare Tunnel overlay. Enable by setting COMPOSE_FILE in .env:
+#   COMPOSE_FILE=docker-compose.yml:docker/tunnel.cloudflare.yml
+#   COMPOSE_FILE=docker-compose.yml;docker/tunnel.cloudflare.yml    #(Windows)
+services:
+  odysseus:
+    environment:
+      - ALLOWED_ORIGINS=${ODYSSEUS_PUBLIC_URL:?set ODYSSEUS_PUBLIC_URL in .env, e.g. https://odysseus.example.com}
+      - SECURE_COOKIES=true
+
+  cloudflared:
+    image: docker.io/cloudflare/cloudflared:latest
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CF_TUNNEL_TOKEN:?set CF_TUNNEL_TOKEN in .env — copy it from Cloudflare Zero Trust -> Networks -> Tunnels}
+    depends_on:
+      odysseus:
+        condition: service_started
+    restart: unless-stopped

@@ -1,0 +1,15 @@
+# Mount local git repositories at /repos. Enable by setting COMPOSE_FILE in .env:
+#   COMPOSE_FILE=docker-compose.yml:docker/repos.yml
+#   COMPOSE_FILE=docker-compose.yml;docker/repos.yml    #(Windows)
+#
+# ODYSSEUS_REPOS_DIR must be an ABSOLUTE host path — Compose does not expand ~,
+# and passes it to Docker literally. On Windows: C:\Users\<you>\Git
+#
+# Odysseus itself has no notion of /repos; it is reachable only through the
+# agent's shell and file tools. The mount is read-write, so whatever the agent
+# can do to a file it can do to these repositories. For a read-only mount,
+# change `:z` to `:ro,z`.
+services:
+  odysseus:
+    volumes:
+      - "${ODYSSEUS_REPOS_DIR:?set ODYSSEUS_REPOS_DIR in .env to an absolute host path}:/repos:z"
